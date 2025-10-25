@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkDNA - Skill Constellation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .galaxy-bg {
+            background: radial-gradient(ellipse at center, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+
+        .constellation-canvas {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .star {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .star:hover {
+            filter: brightness(1.5) drop-shadow(0 0 10px currentColor);
+        }
+
+        .skill-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .skill-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .quiz-modal {
+            background: rgba(15, 12, 41, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .twinkle {
+            animation: twinkle 2s ease-in-out infinite;
+        }
+
+        .code-editor {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            border-radius: 8px;
+            padding: 16px;
+        }
+    </style>
+</head>
+<body class="galaxy-bg">
+    <!-- Navigation -->
+    <nav class="p-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-white">WorkDNA</h1>
+            <div class="flex gap-4">
+                <button onclick="showSection('dashboard')" class="text-white hover:text-purple-300 transition">Dashboard</button>
+                <button onclick="showSection('quiz')" class="text-white hover:text-purple-300 transition">Take Quiz</button>
+                <button onclick="showSection('recommendations')" class="text-white hover:text-purple-300 transition">Recommendations</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-6 py-8">
+        <!-- GitHub Import Section -->
+        <div id="github-section" class="mb-8 skill-card rounded-lg p-6">
+            <h2 class="text-2xl font-bold text-white mb-4">Import Skills from GitHub</h2>
+            <div class="flex gap-4">
+                <input
+                    type="text"
+                    id="github-input"
+                    placeholder="Enter GitHub username or repository URL"
+                    class="flex-1 px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:border-purple-500"
+                />
+                <button
+                    onclick="analyzeGitHub()"
+                    class="btn-primary px-6 py-2 rounded-lg text-white font-semibold"
+                >
+                    Analyze
+                </button>
+            </div>
+            <div id="github-status" class="mt-4 text-sm text-purple-300"></div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard-section">
+            <!-- Constellation Canvas -->
+            <div class="constellation-canvas mb-8 p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-white">Your Skill Constellation</h2>
+                    <button
+                        onclick="showAddSkillModal()"
+                        class="btn-primary px-4 py-2 rounded-lg text-white text-sm"
+                    >
+                        + Add Skill
+                    </button>
+                </div>
+                <canvas id="constellation" width="1000" height="600"></canvas>
+            </div>
+
+            <!-- Skills Progress List -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div id="skills-container">
+                    <!-- Skills will be dynamically added here -->
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="mt-8 skill-card rounded-lg p-6">
+                <h2 class="text-2xl font-bold text-white mb-4">Statistics</h2>
+                <div id="statistics-container" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <!-- Stats will be added here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Section -->
+        <div id="quiz-section" class="hidden">
+            <div class="skill-card rounded-lg p-8">
+                <h2 class="text-3xl font-bold text-white mb-6">Take a Quiz</h2>
+
+                <!-- Quiz Selection -->
+                <div id="quiz-selection" class="mb-8">
+                    <div class="mb-4">
+                        <label class="block text-white mb-2">Select Skill</label>
+                        <select
+                            id="quiz-skill"
+                            class="w-full px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:border-purple-500"
+                        >
+                            <option value="">Choose a skill...</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-white mb-2">Difficulty</label>
+                        <select
+                            id="quiz-difficulty"
+                            class="w-full px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:border-purple-500"
+                        >
+                            <option value="easy">Easy</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <button
+                        onclick="generateQuiz()"
+                        class="btn-primary px-6 py-3 rounded-lg text-white font-semibold w-full"
+                    >
+                        Generate Quiz
+                    </button>
+                </div>
+
+                <!-- Quiz Questions -->
+                <div id="quiz-questions" class="hidden">
+                    <div id="questions-container"></div>
+                    <button
+                        onclick="submitQuiz()"
+                        class="btn-primary px-6 py-3 rounded-lg text-white font-semibold w-full mt-6"
+                    >
+                        Submit Quiz
+                    </button>
+                </div>
+
+                <!-- Quiz Results -->
+                <div id="quiz-results" class="hidden">
+                    <div class="text-center py-8">
+                        <h3 class="text-4xl font-bold text-white mb-4">Your Score</h3>
+                        <div class="text-6xl font-bold text-purple-400 mb-6" id="quiz-score">0%</div>
+                        <p class="text-white mb-8" id="quiz-feedback"></p>
+                        <button
+                            onclick="resetQuiz()"
+                            class="btn-primary px-6 py-3 rounded-lg text-white font-semibold"
+                        >
+                            Take Another Quiz
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations Section -->
+        <div id="recommendations-section" class="hidden">
+            <div class="skill-card rounded-lg p-8">
+                <h2 class="text-3xl font-bold text-white mb-6">Personalized Recommendations</h2>
+                <button
+                    onclick="loadRecommendations()"
+                    class="btn-primary px-6 py-3 rounded-lg text-white font-semibold mb-6"
+                >
+                    Get Recommendations
+                </button>
+                <div id="recommendations-container">
+                    <!-- Recommendations will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Skill Modal -->
+    <div id="add-skill-modal" class="hidden fixed inset-0 flex items-center justify-center z-50">
+        <div class="quiz-modal p-8 rounded-lg max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold text-white mb-4">Add New Skill</h3>
+            <input
+                type="text"
+                id="new-skill-input"
+                placeholder="Enter skill name"
+                class="w-full px-4 py-2 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:border-purple-500 mb-4"
+            />
+            <div class="flex gap-4">
+                <button
+                    onclick="addSkill()"
+                    class="btn-primary px-6 py-2 rounded-lg text-white font-semibold flex-1"
+                >
+                    Add
+                </button>
+                <button
+                    onclick="closeAddSkillModal()"
+                    class="px-6 py-2 rounded-lg text-white border border-white/20 hover:bg-white/10 flex-1"
+                >
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/src/components/constellation.js"></script>
+    <script src="/src/components/skills.js"></script>
+    <script src="/src/components/quiz.js"></script>
+    <script src="/src/components/recommendations.js"></script>
+    <script src="/src/app.js"></script>
+</body>
+</html>
