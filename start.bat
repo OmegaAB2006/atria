@@ -55,7 +55,7 @@ if not exist "node_modules" (
 
 REM Start frontend server
 echo Starting frontend server on port 3000...
-start /B npm start
+start /B npm run dev
 
 cd ..
 

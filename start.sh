@@ -59,7 +59,7 @@ fi
 
 # Start frontend server
 echo -e "${GREEN}Starting frontend server on port 3000...${NC}"
-npm start &
+npm run dev &
 FRONTEND_PID=$!
 
 cd ..
