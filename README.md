@@ -2,6 +2,23 @@
 
 A dynamic skill tracking system that maps your unique "WorkDNA" through GitHub analysis, AI-generated quizzes, and beautiful constellation visualizations.
 
+## Quick Start
+
+**New to the project? Start here:**
+
+1. **[QUICK_START.md](QUICK_START.md)** - Get up and running in 5 minutes
+2. **[INSTALLATION.md](INSTALLATION.md)** - Complete installation guide for Windows/Mac/Linux
+3. **[COMMANDS.md](COMMANDS.md)** - Command reference for all operations
+
+**One-command setup:**
+```bash
+# Linux/Mac
+git clone https://github.com/OmegaAB2006/atria.git && cd atria && chmod +x setup.sh start.sh && ./setup.sh && ./start.sh
+
+# Windows
+git clone https://github.com/OmegaAB2006/atria.git && cd atria && setup.bat && start.bat
+```
+
 ## Features
 
 - **GitHub Integration**: Automatically extract skills from GitHub repositories and user profiles
